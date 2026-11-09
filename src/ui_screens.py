@@ -27,12 +27,14 @@ def thumb(d, x, y, w, h, kind, bg="#EAF0FF", color="#9DB4E8", label=None, r=10):
 
 def screen_login():
     img, d = canvas()
-    gradient(img, (0, 0, 780, H), "#2F6BFF", "#16307F")
+    left = Image.new("RGB", (780, H))
+    gradient(left, (0, 0, 780, H), "#2F6BFF", "#16307F")
+    dl = ImageDraw.Draw(left)
+    dl.ellipse((520, -120, 980, 340), fill="#3D77FF")
+    dl.ellipse((-160, 640, 260, 1060), fill="#2549B8")
+    dl.ellipse((600, 600, 860, 860), fill="#2A55C9")
+    img.paste(left, (0, 0))
     d = ImageDraw.Draw(img)
-    # 装饰
-    d.ellipse((520, -120, 980, 340), fill="#3D77FF")
-    d.ellipse((-160, 640, 260, 1060), fill="#2549B8")
-    d.ellipse((600, 600, 860, 860), fill="#2A55C9")
     rect(d, (88, 84, 132, 128), fill="#FFFFFF", r=12)
     text(d, (110, 106), "易", 26, PRIMARY, bold=True, anchor="mm")
     text(d, (150, 106), "校园易物", 26, "#FFFFFF", bold=True, anchor="lm")
@@ -269,8 +271,8 @@ def screen_publish():
     for i, s in enumerate(["提交后进入管理员待审核列表，", "一般 1 个工作日内完成审核。",
                            "驳回时会给出理由，可在草稿中", "修改后重新提交。"]):
         text(d, (948, 632 + i * 28), s, 12, "#8A6420")
-    button(d, 1090, 756, 150, 46, "保存草稿", "ghost", 14)
-    button(d, 1258, 756, 150, 46, "提交审核", "primary", 14)
+    button(d, 1090, 848, 150, 40, "保存草稿", "ghost", 14)
+    button(d, 1258, 848, 150, 40, "提交审核", "primary", 14)
     return img
 
 
@@ -317,8 +319,13 @@ def screen_seller():
         text(d, (x + 700, yy + 42), views, 13, SUB, anchor="lm")
         text(d, (x + 790, yy + 42), res, 13, SUB, anchor="lm")
         button(d, x + 860, yy + 26, 62, 32, "编辑", "ghost", 12)
-        button(d, x + 930, yy + 26, 62, 32, "下架", "ghost", 12)
-        button(d, x + 1000, yy + 26, 88, 32, "确认预约", "primary", 12)
+        if status[1] == "已预约":
+            button(d, x + 930, yy + 26, 62, 32, "下架", "ghost", 12)
+            button(d, x + 1000, yy + 26, 88, 32, "确认预约", "primary", 12)
+        elif status[1] == "已完成":
+            button(d, x + 930, yy + 26, 88, 32, "查看详情", "ghost", 12)
+        else:
+            button(d, x + 930, yy + 26, 62, 32, "下架", "ghost", 12)
         yy += 84
     text(d, (x + 32, yy + 28), "共 4 条记录，仅展示最近更新", 12, MUTED, anchor="lm")
     return img
