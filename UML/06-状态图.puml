@@ -27,24 +27,20 @@ Published --> Pending : 修改价格
 Published --> Offline : 卖家下架
 Reserved --> Published : 买家取消预约
 Reserved --> Confirmed : 卖家确认
-Reserved --> Offline : 下架 / 举报成立
+Reserved --> Offline : 下架 / 举报成立\n（有效预约作废）
 Confirmed --> Finished : 买家确认完成
 Finished --> [*]
 Offline --> [*]
-
-note right of Finished
-  终态：不可再次预约、
-  修改或下架，保证交易
-  记录可追溯。
-end note
 
 note right of Offline
   终态：再次出售需重新
   发布商品。
 end note
 
-note bottom of Confirmed
+note left of Confirmed
   禁止：买家取消预约
 ——卖家确认后交易锁定。
 end note
 @enduml
+
+

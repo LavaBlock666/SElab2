@@ -1,117 +1,126 @@
 @startuml
-!pragma layout smetana
+!pragma layout elk
 skinparam defaultFontName "Microsoft YaHei"
 skinparam dpi 150
 skinparam shadowing false
 skinparam roundcorner 6
 skinparam backgroundColor #FFFFFF
 skinparam ArrowColor #4B5563
-skinparam ArrowThickness 1.1
+skinparam ArrowThickness 1.2
 skinparam classBorderColor #94A3B8
 skinparam classBackgroundColor #FFFFFF
 skinparam classHeaderBackgroundColor #E8EEF9
+skinparam classFontStyle bold
+skinparam classAttributeFontSize 11
+skinparam classFontSize 12
 hide circle
 skinparam classAttributeIconSize 0
 top to bottom direction
 
-package "领域实体" {
-  class 用户 {
-    - 用户编号: Long
-    - 邮箱: String
-    - 手机号: String
-    - 密码哈希: String
-  }
-  enum 角色 {
-    买家
-    卖家
-    管理员
-  }
-  class 商品 {
-    - 商品编号: Long
-    - 标题: String
-    - 价格: BigDecimal
-    - 状态: 商品状态
-    + 提交审核(): void
-    + 下架(): void
-  }
-  enum 商品状态 {
-    草稿
-    待审核
-    已发布
-    已预约
-    已确认
-    已完成
-    已下架
-  }
-  class 分类 {
-    - 分类编号: Long
-    - 名称: String
-  }
-  class 预约 {
-    - 预约编号: Long
-    - 状态: 预约状态
-    + 确认(): void
-    + 取消(): void
-  }
-  enum 预约状态 {
-    待确认
-    已确认
-    已完成
-    已取消
-    已作废
-  }
-  class 举报 {
-    - 举报编号: Long
-    - 原因: String
-    + 判定成立(): void
-  }
-  class 操作日志 {
-    - 日志编号: Long
-    - 操作类型: String
-  }
+class 用户 {
+  - 用户编号: Long
+  - 邮箱: String
+  - 手机号: String
+  - 密码哈希: String
+  - 状态: 账号状态
+  + 注册(邮箱, 手机号): 用户
+  + 校验密码(明文): boolean
 }
 
-package "领域服务" {
-  class 预约唯一性服务
-  class 商品状态机
+enum 角色 {
+  买家
+  卖家
+  管理员
 }
 
-package "仓储接口" {
-  interface 用户仓储
-  interface 商品仓储
-  interface 预约仓储
-  interface 举报仓储
-  interface 日志仓储
+class 分类 {
+  - 分类编号: Long
+  - 名称: String
 }
 
-package "应用服务" {
-  class 商品应用服务
-  class 预约应用服务
-  class 举报应用服务
-  class 日志应用服务
-  class 统计应用服务
-  class 支付服务 {
-    + 发起支付(订单): void
-  }
-  class 物流服务 {
-    + 查询物流单号(订单): void
-  }
+class 商品 {
+  - 商品编号: Long
+  - 标题: String
+  - 描述: String
+  - 价格: BigDecimal
+  - 状态: 商品状态
+  - 浏览次数: int
+  - 驳回理由: String
+  + 提交审核(): void
+  + 审核通过(): void
+  + 驳回(理由): void
+  + 下架(): void
+  + 改价(新价格): void
 }
 
-用户 "1" -- "0..*" 角色
+enum 商品状态 {
+  草稿
+  待审核
+  已发布
+  已预约
+  已确认
+  已完成
+  已下架
+}
+
+class 预约 {
+  - 预约编号: Long
+  - 状态: 预约状态
+  - 创建时间: DateTime
+  - 确认时间: DateTime
+  - 完成时间: DateTime
+  + 确认(): void
+  + 取消(): void
+  + 完成(): void
+}
+
+enum 预约状态 {
+  待确认
+  已确认
+  已完成
+  已取消
+  已作废
+}
+
+class 举报 {
+  - 举报编号: Long
+  - 原因: String
+  - 说明: String
+  - 状态: 举报状态
+  - 处理结论: String
+  + 判定成立(): void
+  + 判定不成立(): void
+}
+
+enum 举报状态 {
+  待处理
+  已成立
+  已驳回
+}
+
+class 操作日志 {
+  - 日志编号: Long
+  - 操作类型: String
+  - 对象类型: String
+  - 对象编号: Long
+  - 操作时间: DateTime
+}
+
+用户 "1" -- "0..*" 角色 : 拥有 >
 用户 "1" -- "0..*" 商品 : 发布 >
-商品 "0..*" -- "1" 分类
+商品 "0..*" -- "1" 分类 : 归属 >
 用户 "1" -- "0..*" 预约 : 发起 >
-商品 "1" -- "0..1" 预约 : 有效预约 >
-用户 "1" -- "0..*" 举报
-商品 "1" -- "0..*" 举报
-用户 "1" -- "0..*" 操作日志
+商品 "1" -- "0..1" 预约 : 当前有效 >
+商品 "1" -- "0..*" 举报 : 被举报 >
+用户 "1" -- "0..*" 举报 : 提交 >
+用户 "1" -- "0..*" 操作日志 : 操作 >
+商品 ..> 商品状态 : 使用
+预约 ..> 预约状态 : 使用
+举报 ..> 举报状态 : 使用
 
-商品应用服务 ..> 商品仓储
-预约应用服务 ..> 预约仓储
-举报应用服务 ..> 举报仓储
-日志应用服务 ..> 日志仓储
-商品应用服务 ..> 支付服务
-预约应用服务 ..> 物流服务
-商品仓储 ..|> 用户仓储
+note right of 商品
+  同一商品在任一时刻最多
+  一条有效预约，由唯一索引
+  与事务共同保证。
+end note
 @enduml
