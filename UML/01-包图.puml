@@ -1,0 +1,80 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam dpi 140
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam backgroundColor #FFFFFF
+skinparam ArrowColor #4B5563
+skinparam ArrowThickness 1.2
+skinparam packageBorderColor #94A3B8
+skinparam packageBackgroundColor #F8FAFC
+skinparam componentBorderColor #94A3B8
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentStyle rectangle
+top to bottom direction
+
+package "表现层（Web 前端）" {
+  [买家工作台]
+  [卖家工作台]
+  [管理员工作台]
+}
+
+package "接口层" {
+  [REST 接口]
+  [鉴权过滤器]
+  [统一异常与响应]
+}
+
+package "应用层" {
+  [用户应用服务]
+  [商品应用服务]
+  [检索应用服务]
+  [预约应用服务]
+  [举报应用服务]
+  [日志应用服务]
+  [统计应用服务]
+}
+
+package "领域层" {
+  [用户 / 商品 / 预约 / 举报 实体]
+  [预约唯一性领域服务]
+  [商品状态机]
+  [仓储接口]
+}
+
+package "基础设施层" {
+  [MySQL 仓储实现]
+  [Redis 缓存]
+  [对象存储（商品图片）]
+  [站内通知]
+}
+
+[买家工作台] --> [REST 接口]
+[卖家工作台] --> [REST 接口]
+[管理员工作台] --> [REST 接口]
+[REST 接口] --> [鉴权过滤器]
+[鉴权过滤器] --> [统一异常与响应]
+[统一异常与响应] --> [用户应用服务]
+[统一异常与响应] --> [商品应用服务]
+[统一异常与响应] --> [检索应用服务]
+[统一异常与响应] --> [预约应用服务]
+[统一异常与响应] --> [举报应用服务]
+[统一异常与响应] --> [日志应用服务]
+[统一异常与响应] --> [统计应用服务]
+
+[用户应用服务] --> [用户 / 商品 / 预约 / 举报 实体]
+[商品应用服务] --> [商品状态机]
+[预约应用服务] --> [预约唯一性领域服务]
+[举报应用服务] --> [商品状态机]
+[商品应用服务] --> [仓储接口]
+[预约应用服务] --> [仓储接口]
+[举报应用服务] --> [仓储接口]
+[日志应用服务] --> [仓储接口]
+
+[MySQL 仓储实现] ..|> [仓储接口] : 实现
+[MySQL 仓储实现] --> [Redis 缓存]
+[商品应用服务] --> [对象存储（商品图片）]
+[预约应用服务] --> [站内通知]
+[举报应用服务] --> [站内通知]
+@enduml

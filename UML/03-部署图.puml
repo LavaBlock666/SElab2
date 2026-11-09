@@ -1,0 +1,49 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam dpi 140
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam backgroundColor #FFFFFF
+skinparam ArrowColor #4B5563
+skinparam nodeBorderColor #94A3B8
+skinparam nodeBackgroundColor #F8FAFC
+skinparam databaseBorderColor #94A3B8
+skinparam databaseBackgroundColor #F8FAFC
+skinparam artifactBorderColor #94A3B8
+skinparam artifactBackgroundColor #FFFFFF
+top to bottom direction
+
+node "用户浏览器" as Browser {
+  artifact "买家 / 卖家 / 管理员 单页应用"
+}
+
+node "Web 服务器（Nginx）" as Web {
+  artifact "静态资源"
+  artifact "反向代理 / HTTPS"
+}
+
+node "应用服务器（Spring Boot）" as App {
+  artifact "REST 接口与鉴权"
+  artifact "应用服务（7 个）"
+  artifact "领域服务与仓储接口"
+}
+
+database "MySQL 8" as DB {
+  artifact "业务数据与操作日志"
+}
+
+node "Redis" as Cache {
+  artifact "会话与热点缓存"
+}
+
+node "对象存储" as OSS {
+  artifact "商品图片"
+}
+
+Browser --> Web : HTTPS
+Web --> App : /api 反向代理
+App --> DB : JDBC 事务
+App --> Cache : 会话 / 查询缓存
+App --> OSS : 图片上传与读取
+@enduml

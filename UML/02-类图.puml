@@ -1,0 +1,117 @@
+@startuml
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam dpi 150
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam backgroundColor #FFFFFF
+skinparam ArrowColor #4B5563
+skinparam ArrowThickness 1.1
+skinparam classBorderColor #94A3B8
+skinparam classBackgroundColor #FFFFFF
+skinparam classHeaderBackgroundColor #E8EEF9
+hide circle
+skinparam classAttributeIconSize 0
+top to bottom direction
+
+package "领域实体" {
+  class 用户 {
+    - 用户编号: Long
+    - 邮箱: String
+    - 手机号: String
+    - 密码哈希: String
+  }
+  enum 角色 {
+    买家
+    卖家
+    管理员
+  }
+  class 商品 {
+    - 商品编号: Long
+    - 标题: String
+    - 价格: BigDecimal
+    - 状态: 商品状态
+    + 提交审核(): void
+    + 下架(): void
+  }
+  enum 商品状态 {
+    草稿
+    待审核
+    已发布
+    已预约
+    已确认
+    已完成
+    已下架
+  }
+  class 分类 {
+    - 分类编号: Long
+    - 名称: String
+  }
+  class 预约 {
+    - 预约编号: Long
+    - 状态: 预约状态
+    + 确认(): void
+    + 取消(): void
+  }
+  enum 预约状态 {
+    待确认
+    已确认
+    已完成
+    已取消
+    已作废
+  }
+  class 举报 {
+    - 举报编号: Long
+    - 原因: String
+    + 判定成立(): void
+  }
+  class 操作日志 {
+    - 日志编号: Long
+    - 操作类型: String
+  }
+}
+
+package "领域服务" {
+  class 预约唯一性服务
+  class 商品状态机
+}
+
+package "仓储接口" {
+  interface 用户仓储
+  interface 商品仓储
+  interface 预约仓储
+  interface 举报仓储
+  interface 日志仓储
+}
+
+package "应用服务" {
+  class 商品应用服务
+  class 预约应用服务
+  class 举报应用服务
+  class 日志应用服务
+  class 统计应用服务
+  class 支付服务 {
+    + 发起支付(订单): void
+  }
+  class 物流服务 {
+    + 查询物流单号(订单): void
+  }
+}
+
+用户 "1" -- "0..*" 角色
+用户 "1" -- "0..*" 商品 : 发布 >
+商品 "0..*" -- "1" 分类
+用户 "1" -- "0..*" 预约 : 发起 >
+商品 "1" -- "0..1" 预约 : 有效预约 >
+用户 "1" -- "0..*" 举报
+商品 "1" -- "0..*" 举报
+用户 "1" -- "0..*" 操作日志
+
+商品应用服务 ..> 商品仓储
+预约应用服务 ..> 预约仓储
+举报应用服务 ..> 举报仓储
+日志应用服务 ..> 日志仓储
+商品应用服务 ..> 支付服务
+预约应用服务 ..> 物流服务
+商品仓储 ..|> 用户仓储
+@enduml
