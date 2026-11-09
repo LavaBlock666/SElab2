@@ -1,12 +1,12 @@
 @startuml
-!pragma layout elk
+!pragma layout smetana
 skinparam defaultFontName "Microsoft YaHei"
-skinparam dpi 140
+skinparam dpi 160
 skinparam shadowing false
-skinparam roundcorner 6
+skinparam roundcorner 8
 skinparam backgroundColor #FFFFFF
 skinparam ArrowColor #4B5563
-skinparam ArrowThickness 1.3
+skinparam ArrowThickness 1.4
 skinparam packageBorderColor #94A3B8
 skinparam packageBackgroundColor #F8FAFC
 skinparam componentBorderColor #94A3B8
@@ -14,46 +14,30 @@ skinparam componentBackgroundColor #FFFFFF
 skinparam componentStyle rectangle
 top to bottom direction
 
-package "表现层" as PL {
-  [买家工作台]
-  [卖家工作台]
-  [管理员工作台]
+package "表现层　Vue 3 单页应用" as PL {
+  [买家工作台 · 卖家工作台\n管理员工作台]
 }
 
 package "接口层" as API {
-  [REST 接口]
-  [鉴权过滤器]
-  [统一异常与响应]
+  [REST 接口 · 鉴权过滤器 · 统一异常响应]
 }
 
-package "应用层" as APP {
-  [用户应用服务]
-  [商品应用服务]
-  [检索应用服务]
-  [预约应用服务]
-  [举报应用服务]
-  [日志应用服务]
-  [统计应用服务]
+package "应用层　7 个业务服务" as APP {
+  [用户 · 商品 · 检索 · 预约\n举报 · 日志 · 统计]
 }
 
 package "领域层" as DOM {
-  [领域实体]
-  [预约唯一性服务]
-  [商品状态机]
-  [仓储接口]
+  [领域实体 · 商品状态机\n预约唯一性规则 · 仓储接口]
 }
 
 package "基础设施层" as INF {
-  [MySQL 仓储实现]
-  [Redis 缓存]
-  [对象存储]
-  [站内通知]
+  [MySQL 仓储 · Redis\n对象存储 · 站内通知]
 }
 
-PL --> API
-API --> APP
-APP --> DOM
-APP --> INF
+PL --> API : HTTP / JSON
+API --> APP : 调用应用服务
+APP --> DOM : 领域规则
+APP --> INF : 仓储与通知实现
 INF ..> DOM : 实现仓储接口
 
 note right of APP
